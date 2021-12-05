@@ -2,79 +2,67 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./style.css";
 
-const Tasks = ({ token }) => {
-  const [taskUser, setTaskUser] = useState([]);
-  // const [taskAdmin,setTaskAdmin]=useState([]);
-  const [up, setUp] = useState(false);
-  const [toke, setToke] = useState("");
+const Tasks = ({taskUser,toke,setUp,up }) => {
+  
+  
   const [taskName, setTaskname] = useState("");
+  const [taskadd, setTaskadd] = useState("");
 
-  useEffect(() => {
-    const tok = localStorage.getItem("Token");
-    getTasks(tok);
-    setToke(tok);
-    // console.log("tok",tok);
-    // getTasksAdmin(tok);
-  }, [up]);
 
-  const getTasks = async (tok) => {
+  const deletetask = async (taskId) => {
     try {
-      const tasks = await axios.get(
-        `${process.env.REACT_APP_BASIC_URL}/tasks`,
-        { headers: { Authorization: `Bearer ${tok}` } }
+      const result = await axios.delete(
+        `${process.env.REACT_APP_BASIC_URL}/task`,
+        { data: { taskId } },
+        { headers: { Authorization: `Bearer ${toke}` } }
       );
-    //   console.log("tasks", tasks.data);
-      setTaskUser(tasks.data);
-      // setRole("user");
+      setUp(!up);
     } catch (error) {
       console.log(error);
     }
   };
-  // const getTasksAdmin=async(tok)=>{
-  //     try{
-  //      const tasks=await axios.get(`${process.env.REACT_APP_BASIC_URL}/alltasks`, {headers:{Authorization:`Bearer ${tok}`}})
-  //      console.log("tasksadmin",tasks.data);
-  //      setTaskAdmin(tasks.data);
-  //      setRole("admin");
-  //     }catch(error) {
-  //         console.log(error);
-  //     }
-  //  }
-
-  const deletetask = async(taskId) => {
-     
-     try{
-         const result=await axios.delete(
-        `${process.env.REACT_APP_BASIC_URL}/task`,
-        {data:{taskId}},
-        { headers: { Authorization: `Bearer ${toke}` } }
-      );
-    setUp(!up);
-     }catch(error){
-        console.log(error);
-     }
-
-}
 
   const updatetask = (_id) => {
-      if(taskName.length>0){
-    axios.put(
-      `${process.env.REACT_APP_BASIC_URL}/task`,
-      { taskId: _id,taskName:taskName },
-      { headers: { Authorization: `Bearer ${toke}` } }
-    );
-      }
+    if (taskName.length > 0) {
+      axios.put(
+        `${process.env.REACT_APP_BASIC_URL}/task`,
+        { taskId: _id, taskName: taskName },
+        { headers: { Authorization: `Bearer ${toke}` } }
+      );
+    }
     setTaskname("");
+    setUp(!up);
+  };
+
+  const createTask = () => {
+      console.log("taskadd",taskadd);
+    if (taskadd.length > 0) {
+      axios.post(
+        `${process.env.REACT_APP_BASIC_URL}/create`,
+        { name: taskadd },
+        { headers: { Authorization: `Bearer ${toke}` } }
+      );
+    }
+    setTaskadd("");
     setUp(!up);
   };
 
   return (
     <div>
-      {taskUser.length &&
-        taskUser.map((item) => {
+       
+      <input
+        type="text"
+        value={taskadd}
+        onChange={(e) => {
+            setTaskadd(e.target.value);
+        }}
+      />
+      <button onClick={createTask}>add task</button>
+    
+       { taskUser.map((item) => {
           console.log("item", item);
           return (
-            <div>
+            <div key={item._id}>
               <h1>{item.name}</h1>
               <button onClick={() => deletetask(item._id)}>delete</button>
               <input
@@ -86,10 +74,13 @@ const Tasks = ({ token }) => {
               />
               <button onClick={() => updatetask(item._id)}>update</button>
             </div>
-          );
-        })}
+          )})}
+            
+       
     </div>
-  );
-};
+  )
+            };
+        
+
 
 export default Tasks;
