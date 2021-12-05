@@ -4,20 +4,24 @@ import Register from './components/Register';
 import SignIn from './components/Signin';
 import Tasks from './components/Tasks';
 import LogOut from './components/LogOut';
+import LogIn from './components/Login';
 import './App.css';
 
 function App() {
- const [token,setToken]=useState("");
+ const [token,setToken]=useState(false);
 
 
   return ( 
   <> 
-  <Register />
+ {!token ? 
+ <LogIn setToken={setToken}/> :
+ <Tasks />
+  }
   <Routes>
-  <Route exact path="/" element={<Tasks />} />
+  <Route exact path="/tasks" element={<Tasks token={token}/>} />
   <Route exact path="/register" element={<Register />} />
-  <Route exact path="/signin" element={<SignIn />} />
-  <Route exact path="/logout" element={<LogOut />} />
+  <Route exact path="/signin" element={<SignIn setToken={setToken}/>} />
+  <Route exact path="/logout" element={<LogOut setToken={setToken}/>} />
   </Routes>
 
 
